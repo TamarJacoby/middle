@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>באמצע — נפגשים באמצע הדרך</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface2: #f9f8f5;
+    --border: #e8e6e0;
+    --accent: #2d6a4f;
+    --accent-light: #d8f3dc;
+    --accent2: #52b788;
+    --text: #1a1a1a;
+    --text-muted: #888;
+    --danger: #e63946;
+    --radius: 14px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Heebo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .screen { display: none; min-height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  header {
+    background: var(--surface);
+    padding: 18px 36px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    position: relative;
+    z-index: 10;
+  }
+
+  .logo {
+    width: 38px; height: 38px;
+    background: var(--accent);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+
+  header h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+  header h1 span { color: var(--accent); }
+
+  .back-btn {
+    margin-right: auto;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Heebo', sans-serif;
+    font-size: 13px; color: var(--text-muted);
+    padding: 7px 14px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .back-btn:hover { background: var(--bg); color: var(--text); }
+
+  /* ---- SCREEN 1 ---- */
+  #screen1 .body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 460px 1fr;
+    overflow: hidden;
+    height: calc(100vh - 73px);
+  }
+
+  .panel {
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+    padding: 28px 26px;
+    gap: 22px;
+  }
+  .panel::-webkit-scrollbar { width: 4px; }
+  .panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .section-title {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 12px;
+  }
+
+  .persons-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .person-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 13px 15px;
+    display: flex; align-items: center; gap: 12px;
+    transition: box-shadow 0.2s;
+  }
+  .person-card:hover { box-shadow: var(--shadow); }
+
+  .avatar {
+    width: 50px; height: 50px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800; color: #fff; flex-shrink: 0;
+  }
+
+  .p-info { flex: 1; min-width: 0; }
+  .p-name { font-size: 14px; font-weight: 700; }
+  .p-addr { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .remove-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-muted); font-size: 15px; padding: 4px;
+    border-radius: 6px; transition: color 0.2s;
+  }
+  .remove-btn:hover { color: var(--danger); }
+
+  .add-form { display: flex; flex-direction: column; gap: 10px; }
+
+  .input-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; }
+
+  input[type="text"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Heebo', sans-serif;
+    font-size: 14px; padding: 11px 14px;
+    outline: none; transition: border-color 0.2s;
+  }
+  input[type="text"]:focus { border-color: var(--accent); background: #fff; }
+  input[type="text"]::placeholder { color: #bbb; }
+  input[type="text"].error { border-color: var(--danger); }
+
+  .btn-add {
+    background: var(--surface2);
+    border: 1.5px dashed var(--border);
+    border-radius: 10px; color: var(--text-muted);
+    font-family: 'Heebo', sans-serif; font-size: 14px;
+    padding: 11px 14px; cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-add:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+  .find-wrap { margin-top: auto; padding-top: 4px; }
+
+  .btn-find {
+    width: 100%; background: var(--accent); color: #fff;
+    border: none; border-radius: 12px;
+    font-family: 'Heebo', sans-serif; font-size: 16px; font-weight: 800;
+    padding: 16px; cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 4px 16px rgba(45,106,79,0.3);
+  }
+  .btn-find:hover { background: #235c42; transform: translateY(-1px); }
+  .btn-find:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+  #map1 { width: 100%; height: 100%; }
+
+  /* ---- SCREEN 2 ---- */
+  #screen2 .body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 480px 1fr;
+    overflow: hidden;
+    height: calc(100vh - 73px);
+  }
+
+  .results-panel {
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+
+  .mid-banner {
+    background: var(--accent); color: #fff;
+    padding: 20px 24px;
+    display: flex; align-items: center; gap: 16px;
+    flex-shrink: 0;
+  }
+  .mid-icon { font-size: 30px; }
+  .mid-label { font-size: 10px; font-weight: 700; opacity: 0.75; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 3px; }
+  .mid-name { font-size: 20px; font-weight: 900; }
+  .mid-sub { font-size: 12px; opacity: 0.8; margin-top: 3px; }
+
+  .participants-strip {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 8px; flex-wrap: wrap;
+    background: var(--surface2); flex-shrink: 0;
+  }
+  .part-chip {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 5px 12px 5px 8px;
+    font-size: 12px; font-weight: 600;
+  }
+  .part-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .filter-bar {
+    padding: 12px 20px;
+    display: flex; gap: 8px; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .chip {
+    background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: 20px; font-family: 'Heebo', sans-serif;
+    font-size: 12px; font-weight: 600; color: var(--text-muted);
+    padding: 5px 13px; cursor: pointer; transition: all 0.2s;
+  }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .chip:hover:not(.active) { border-color: var(--accent2); color: var(--accent); }
+
+  .results-scroll {
+    flex: 1; overflow-y: auto;
+    padding: 16px 20px 24px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .results-scroll::-webkit-scrollbar { width: 4px; }
+  .results-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .result-card {
+    background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 16px;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; gap: 14px;
+  }
+  .result-card:hover { border-color: var(--accent2); box-shadow: var(--shadow); transform: translateX(-2px); }
+  .result-card.active { border-color: var(--accent); background: #fff; box-shadow: 0 4px 20px rgba(45,106,79,0.12); }
+
+  .result-num {
+    width: 32px; height: 32px; background: var(--accent); color: #fff;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; flex-shrink: 0;
+  }
+
+  .result-body { flex: 1; min-width: 0; }
+  .result-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .result-name { font-size: 15px; font-weight: 700; line-height: 1.3; }
+  .result-rating {
+    font-size: 12px; font-weight: 700; color: var(--accent);
+    background: var(--accent-light); border-radius: 6px;
+    padding: 2px 8px; white-space: nowrap; flex-shrink: 0;
+  }
+  .result-addr { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+  .result-footer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .type-badge {
+    font-size: 11px; font-weight: 700;
+    background: var(--accent-light); color: var(--accent);
+    border-radius: 6px; padding: 3px 9px;
+  }
+  .nav-btn {
+    margin-right: auto; background: none;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-family: 'Heebo', sans-serif; font-size: 12px; font-weight: 600;
+    color: var(--text-muted); padding: 5px 11px; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover { border-color: var(--accent2); color: var(--accent); background: var(--accent-light); }
+
+  #map2 { width: 100%; height: 100%; }
+
+  /* loading */
+  .loading-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(245,244,240,0.88); z-index: 200;
+    align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+  }
+  .loading-overlay.show { display: flex; }
+  .spinner {
+    width: 44px; height: 44px;
+    border: 3px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 15px; font-weight: 600; color: var(--text-muted); }
+
+  .empty { padding: 40px; text-align: center; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; }
+
+  /* autocomplete */
+  .pac-container {
+    background: #fff !important; border: 1.5px solid var(--border) !important;
+    border-radius: 12px !important; font-family: 'Heebo', sans-serif !important;
+    margin-top: 4px !important; box-shadow: 0 8px 24px rgba(0,0,0,0.1) !important;
+  }
+  .pac-item { color: var(--text) !important; border-top: 1px solid var(--border) !important; padding: 9px 14px !important; font-size: 13px !important; }
+  .pac-item:hover { background: var(--bg) !important; }
+  .pac-item-query { color: var(--text) !important; }
+  .pac-matched { color: var(--accent) !important; font-weight: 700 !important; }
+  .hdpi.pac-logo:after, .pac-logo:after { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">מחפשת מקומות מפגש...</div>
+</div>
+
+<!-- ======== SCREEN 1 ======== -->
+<div class="screen active" id="screen1">
+  <header>
+    <div class="logo">📍</div>
+    <h1>ב<span>אמצע</span></h1>
+  </header>
+  <div class="body">
+    <div class="panel">
+
+      <div>
+        <div class="section-title">משתתפים</div>
+        <div class="persons-list" id="personsList">
+          <div style="color:var(--text-muted);font-size:13px;padding:8px 0;">הוסיפי לפחות 2 משתתפים כדי להתחיל</div>
+        </div>
+      </div>
+
+      <div class="add-form">
+        <div class="section-title">הוספת משתתף</div>
+        <div>
+          <div class="input-label">שם (אופציונלי)</div>
+          <input type="text" id="personName" placeholder="למשל: דנה" />
+        </div>
+        <div>
+          <div class="input-label">כתובת</div>
+          <input type="text" id="addressInput" placeholder="הכניסי כתובת..." autocomplete="off" />
+        </div>
+        <button class="btn-add" onclick="addPerson()">＋ הוסף משתתף</button>
+      </div>
+
+      <div class="find-wrap">
+        <button class="btn-find" id="findBtn" onclick="startSearch()" disabled>
+          🔍 מצאי מקום מפגש
+        </button>
+      </div>
+
+    </div>
+    <div id="map1"></div>
+  </div>
+</div>
+
+<!-- ======== SCREEN 2 ======== -->
+<div class="screen" id="screen2">
+  <header>
+    <div class="logo">📍</div>
+    <h1>ב<span>אמצע</span></h1>
+    <button class="back-btn" onclick="goBack()">← חזרה</button>
+  </header>
+  <div class="body">
+    <div class="results-panel">
+
+      <div class="mid-banner">
+        <div class="mid-icon">🎯</div>
+        <div>
+          <div class="mid-label">נקודת האמצע</div>
+          <div class="mid-name" id="midName">מחשב...</div>
+          <div class="mid-sub" id="midSub"></div>
+        </div>
+      </div>
+
+      <div class="participants-strip" id="participantsStrip"></div>
+      <div class="filter-bar" id="filterBar"></div>
+
+      <div class="results-scroll" id="resultsList">
+        <div class="empty"><div class="empty-icon">⏳</div>טוענת תוצאות...</div>
+      </div>
+
+    </div>
+    <div id="map2"></div>
+  </div>
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB1cGE0KbgyWaWFTLrRBjqO5h0L3SP5ygQ&libraries=places&language=he&callback=initApp" async defer></script>
+
+<script>
+const AVATAR_COLORS = ['#2d6a4f','#e76f51','#457b9d','#9b2226','#6a4c93','#f4a261'];
+const TYPE_ICONS = { cafe:'☕', restaurant:'🍽️', bar:'🍷', park:'🌳', shopping_mall:'🛍️', museum:'🏛️', movie_theater:'🎬', gym:'💪' };
+const TYPE_LABELS = { cafe:'קפה', restaurant:'מסעדה', bar:'בר', park:'פארק', shopping_mall:'קניות', museum:'מוזיאון', movie_theater:'קולנוע', gym:'ספורט' };
+
+let map1, map2, geocoder, service2;
+let persons = [], markers1 = [], markers2 = [];
+let midMarker = null, circleOverlay = null;
+let currentPlaces = [], activeFilter = 'הכל';
+
+function initApp() {
+  map1 = new google.maps.Map(document.getElementById('map1'), {
+    center: { lat: 31.7683, lng: 35.2137 },
+    zoom: 11,
+    mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
+  });
+
+  map2 = new google.maps.Map(document.getElementById('map2'), {
+    center: { lat: 31.7683, lng: 35.2137 },
+    zoom: 14,
+    mapTypeControl: false, streetViewControl: false, fullscreenControl: true,
+  });
+
+  geocoder = new google.maps.Geocoder();
+  service2 = new google.maps.places.PlacesService(map2);
+
+  const ac = new google.maps.places.Autocomplete(
+    document.getElementById('addressInput'),
+    { types: ['geocode', 'establishment'] }
+  );
+  ac.addListener('place_changed', () => {
+    const place = ac.getPlace();
+    if (place.geometry) {
+      const inp = document.getElementById('addressInput');
+      inp.dataset.lat = place.geometry.location.lat();
+      inp.dataset.lng = place.geometry.location.lng();
+    }
+  });
+  document.getElementById('addressInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); addPerson(); }
+  });
+}
+
+function addPerson() {
+  const inp = document.getElementById('addressInput');
+  const nameInp = document.getElementById('personName');
+  const lat = parseFloat(inp.dataset.lat);
+  const lng = parseFloat(inp.dataset.lng);
+
+  if (!lat || !lng) {
+    inp.classList.add('error');
+    setTimeout(() => inp.classList.remove('error'), 900);
+    return;
+  }
+
+  const name = nameInp.value.trim() || `אדם ${persons.length + 1}`;
+  const color = AVATAR_COLORS[persons.length % AVATAR_COLORS.length];
+  persons.push({ name, address: inp.value.trim(), lat, lng, color });
+
+  nameInp.value = ''; inp.value = '';
+  delete inp.dataset.lat; delete inp.dataset.lng;
+
+  renderPersonsList();
+  updateMap1();
+  document.getElementById('findBtn').disabled = persons.length < 2;
+}
+
+function removePerson(i) {
+  persons.splice(i, 1);
+  renderPersonsList(); updateMap1();
+  document.getElementById('findBtn').disabled = persons.length < 2;
+}
+
+function renderPersonsList() {
+  const list = document.getElementById('personsList');
+  if (!persons.length) {
+    list.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:8px 0;">הוסיפי לפחות 2 משתתפים כדי להתחיל</div>';
+    return;
+  }
+  list.innerHTML = '';
+  persons.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'person-card';
+    d.innerHTML = `
+      <div class="avatar" style="background:${p.color}">${p.name[0]}</div>
+      <div class="p-info">
+        <div class="p-name">${p.name}</div>
+        <div class="p-addr">${p.address}</div>
+      </div>
+      <button class="remove-btn" onclick="removePerson(${i})">✕</button>
+    `;
+    list.appendChild(d);
+  });
+}
+
+function updateMap1() {
+  markers1.forEach(m => m.setMap(null)); markers1 = [];
+  persons.forEach(p => {
+    const m = new google.maps.Marker({
+      position: { lat: p.lat, lng: p.lng }, map: map1, title: p.name,
+      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 11, fillColor: p.color, fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 },
+      label: { text: p.name[0], color: '#fff', fontSize: '11px', fontWeight: '800' }
+    });
+    markers1.push(m);
+  });
+  if (persons.length) {
+    const b = new google.maps.LatLngBounds();
+    persons.forEach(p => b.extend({ lat: p.lat, lng: p.lng }));
+    map1.fitBounds(b, 60);
+  }
+}
+
+function getMidpoint() {
+  return {
+    lat: persons.reduce((s, p) => s + p.lat, 0) / persons.length,
+    lng: persons.reduce((s, p) => s + p.lng, 0) / persons.length,
+  };
+}
+
+function startSearch() {
+  if (persons.length < 2) return;
+
+  // show screen 2
+  document.getElementById('screen1').classList.remove('active');
+  document.getElementById('screen2').classList.add('active');
+
+  // participants strip
+  document.getElementById('participantsStrip').innerHTML =
+    persons.map(p => `<div class="part-chip"><div class="part-dot" style="background:${p.color}"></div>${p.name}</div>`).join('');
+
+  // person markers on map2
+  markers2.forEach(m => m.setMap(null)); markers2 = [];
+  persons.forEach(p => {
+    const m = new google.maps.Marker({
+      position: { lat: p.lat, lng: p.lng }, map: map2, title: p.name,
+      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 11, fillColor: p.color, fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 },
+      label: { text: p.name[0], color: '#fff', fontSize: '11px', fontWeight: '800' }
+    });
+    markers2.push(m);
+  });
+
+  doSearch();
+}
+
+function doSearch() {
+  const mid = getMidpoint();
+  document.getElementById('loadingOverlay').classList.add('show');
+  document.getElementById('resultsList').innerHTML = '';
+
+  // reverse geocode midpoint for city name
+  geocoder.geocode({ location: mid, language: 'he' }, (results, status) => {
+    if (status === 'OK' && results[0]) {
+      const comps = results[0].address_components;
+      const city = comps.find(c => c.types.includes('locality'))?.long_name
+                || comps.find(c => c.types.includes('sublocality'))?.long_name
+                || comps.find(c => c.types.includes('administrative_area_level_2'))?.long_name
+                || results[0].formatted_address.split(',')[0];
+      document.getElementById('midName').textContent = city;
+    }
+  });
+
+  // gather each person's city for subtitle "בין X ל Y"
+  const personCities = [];
+  let pendingGeo = persons.length;
+  persons.forEach(p => {
+    geocoder.geocode({ location: { lat: p.lat, lng: p.lng }, language: 'he' }, (res, st) => {
+      if (st === 'OK' && res[0]) {
+        const comps = res[0].address_components;
+        const city = comps.find(c => c.types.includes('locality'))?.long_name
+                  || comps.find(c => c.types.includes('sublocality'))?.long_name
+                  || res[0].formatted_address.split(',')[0];
+        if (city) personCities.push(city);
+      }
+      if (--pendingGeo === 0) {
+        const unique = [...new Set(personCities)];
+        if (unique.length >= 2) {
+          document.getElementById('midSub').textContent = 'בין ' + unique.join(' ל\u2011');
+        }
+      }
+    });
+  });
+
+  // midpoint marker
+  if (midMarker) midMarker.setMap(null);
+  if (circleOverlay) circleOverlay.setMap(null);
+
+  midMarker = new google.maps.Marker({
+    position: mid, map: map2, title: 'נקודת האמצע', zIndex: 20,
+    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 18, fillColor: '#2d6a4f', fillOpacity: 0.18, strokeColor: '#2d6a4f', strokeWeight: 3 }
+  });
+
+  circleOverlay = new google.maps.Circle({
+    map: map2, center: mid, radius: 2000,
+    strokeColor: 'rgba(45,106,79,0.5)', strokeWeight: 1.5,
+    fillColor: 'rgba(45,106,79,0.07)',
+  });
+
+  map2.panTo(mid); map2.setZoom(15);
+
+  const types = ['cafe', 'restaurant', 'bar', 'park', 'shopping_mall', 'museum'];
+  let allPlaces = [], pending = types.length;
+
+  types.forEach(type => {
+    service2.nearbySearch({ location: mid, radius: 2000, type }, (results, status) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+        results.forEach(r => { r._type = type; });
+        allPlaces = allPlaces.concat(results.slice(0, 12));
+      }
+      if (--pending === 0) displayResults(allPlaces, mid);
+    });
+  });
+}
+
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function scorePlace(place, mid) {
+  // avg distance from each person (fairness)
+  const avgDist = persons.reduce((sum, p) => {
+    return sum + haversine(p.lat, p.lng, place.geometry.location.lat(), place.geometry.location.lng());
+  }, 0) / persons.length;
+  // max deviation from avg distance (how "equal" the place is for everyone)
+  const dists = persons.map(p => haversine(p.lat, p.lng, place.geometry.location.lat(), place.geometry.location.lng()));
+  const maxDeviation = Math.max(...dists) - Math.min(...dists);
+  // distance from geometric midpoint
+  const distFromMid = haversine(mid.lat, mid.lng, place.geometry.location.lat(), place.geometry.location.lng());
+  // rating score 0-5
+  const ratingScore = place.rating || 3;
+  // combined score: lower is better for distances, higher is better for rating
+  // normalize: distFromMid penalizes far-from-center, maxDeviation penalizes unfairness
+  return ratingScore * 1000 - distFromMid * 0.5 - maxDeviation * 0.3;
+}
+
+function displayResults(places, mid) {
+  document.getElementById('loadingOverlay').classList.remove('show');
+
+  const seen = new Set();
+  const unique = places.filter(p => { if (seen.has(p.place_id)) return false; seen.add(p.place_id); return true; });
+  // Score and sort
+  unique.forEach(p => { p._score = scorePlace(p, mid); });
+  unique.sort((a, b) => b._score - a._score);
+  currentPlaces = unique;
+
+  if (!unique.length) {
+    document.getElementById('resultsList').innerHTML = '<div class="empty"><div class="empty-icon">😕</div>לא נמצאו מקומות בסביבה.</div>';
+    return;
+  }
+
+  const typeSet = ['הכל', ...new Set(unique.map(p => TYPE_LABELS[p._type] || p._type))];
+  const fb = document.getElementById('filterBar');
+  fb.innerHTML = '';
+  typeSet.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'chip' + (t === 'הכל' ? ' active' : '');
+    btn.textContent = t;
+    btn.onclick = () => { activeFilter = t; renderResults(currentPlaces); };
+    fb.appendChild(btn);
+  });
+
+  activeFilter = 'הכל';
+  renderResults(unique);
+}
+
+function renderResults(places) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.textContent === activeFilter));
+
+  const filtered = activeFilter === 'הכל' ? places : places.filter(p => (TYPE_LABELS[p._type] || p._type) === activeFilter);
+
+  // remove result markers only
+  markers2 = markers2.filter(m => {
+    if (m._isResult) { m.setMap(null); return false; }
+    return true;
+  });
+
+  const list = document.getElementById('resultsList');
+  list.innerHTML = '';
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div>אין תוצאות לסוג זה.</div>';
+    return;
+  }
+
+  filtered.slice(0, 25).forEach((place, i) => {
+    const icon = TYPE_ICONS[place._type] || '📍';
+    const label = TYPE_LABELS[place._type] || place._type;
+    const rating = place.rating ? `⭐ ${place.rating.toFixed(1)}` : '';
+
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    card.innerHTML = `
+      <div class="result-num">${i + 1}</div>
+      <div class="result-body">
+        <div class="result-top">
+          <div class="result-name">${icon} ${place.name}</div>
+          ${rating ? `<div class="result-rating">${rating}</div>` : ''}
+        </div>
+        <div class="result-addr">${place.vicinity || ''}</div>
+        <div class="result-footer">
+          <span class="type-badge">${label}</span>
+          <button class="nav-btn" onclick="openNav(event,'${place.geometry.location.lat()}','${place.geometry.location.lng()}')">🗺️ ניווט</button>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', () => focusResult(place, card));
+    list.appendChild(card);
+
+    const m = new google.maps.Marker({
+      position: place.geometry.location, map: map2, title: place.name, zIndex: 15,
+      label: { text: String(i + 1), color: '#fff', fontSize: '11px', fontWeight: '800' },
+      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 14, fillColor: '#e76f51', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 }
+    });
+    m._isResult = true;
+    m.addListener('click', () => focusResult(place, card));
+    markers2.push(m);
+  });
+}
+
+function focusResult(place, card) {
+  document.querySelectorAll('.result-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  map2.panTo(place.geometry.location);
+  map2.setZoom(17);
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function openNav(e, lat, lng) {
+  e.stopPropagation();
+  window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+}
+
+function goBack() {
+  document.getElementById('screen2').classList.remove('active');
+  document.getElementById('screen1').classList.add('active');
+}
+</script>
+</body>
+</html>
